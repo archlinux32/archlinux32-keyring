@@ -11,18 +11,18 @@ GPG="gpg --quiet --batch --no-tty --no-permission-warning --keyserver "${KEYSERV
 pushd "$(dirname "$0")" >/dev/null
 
 $GPG --gen-key <<EOF
-%echo Generating Arch Linux ARM Keyring keychain master key...
+%echo Generating Arch Linux 32 Keyring keychain master key...
 Key-Type: RSA
 Key-Length: 1024
 Key-Usage: sign
-Name-Real: Arch Linux ARM Keyring Keychain Master Key
-Name-Email: archlinuxarm-keyring@localhost
+Name-Real: Arch Linux 32 Keyring Keychain Master Key
+Name-Email: archlinux32-keyring@localhost
 Expire-Date: 0
 %commit
 %echo Done
 EOF
 
-rm -rf master packager packager-revoked archlinuxarm-trusted archlinuxarm-revoked
+rm -rf master packager packager-revoked archlinux32-trusted archlinux32-revoked
 mkdir master packager packager-revoked
 
 while read -ra data; do
@@ -33,9 +33,9 @@ while read -ra data; do
 		${GPG} --command-fd 0 --edit-key ${keyid}
 	${GPG} --yes --lsign-key ${keyid} &>/dev/null
 	${GPG} --armor --no-emit-version --export ${keyid} >> master/${username}.asc
-	echo "${keyid}:4:" >> archlinuxarm-trusted
+	echo "${keyid}:4:" >> archlinux32-trusted
 done < master-keyids
-${GPG} --import-ownertrust < archlinuxarm-trusted 2>/dev/null
+${GPG} --import-ownertrust < archlinux32-trusted 2>/dev/null
 
 while read -ra data; do
 	keyid="${data[0]}"
@@ -63,12 +63,14 @@ done < packager-keyids
 #		${GPG} --command-fd 0 --edit-key ${keyid}
 #	if ! ${GPG} --list-keys --with-colons ${keyid} 2>/dev/null | grep -q '^pub:f:'; then
 #		${GPG} --armor --no-emit-version --export ${keyid} >> packager-revoked/${username}.asc
-#		echo "${keyid}" >> archlinuxarm-revoked
+#		echo "${keyid}" >> archlinux32-revoked
 #	else
 #		echo "key is still fully trusted: ${keyid} ${username}"
 #	fi
 #done < packager-revoked-keyids
 
-cat master/*.asc packager/*.asc packager-revoked/*.asc > archlinuxarm.gpg
+#cat master/*.asc packager/*.asc packager-revoked/*.asc > archlinux32.gpg
+
+cat master/*.asc packager/*.asc > archlinux32.gpg
 
 popd >/dev/null
