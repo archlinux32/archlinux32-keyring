@@ -48,35 +48,28 @@ while read -ra data; do
 		${GPG} --command-fd 0 --edit-key ${keyid}
 	if ! ${GPG} --list-keys --with-colons ${keyid} 2>/dev/null | grep -q '^pub:f:'; then
 		echo "key is not fully trusted: ${keyid} ${username}"
-		${GPG} --list-keys --with-colons ${keyid}
-		echo
-		${GPG} --list-sigs ${keyid}
-		while read -r a b; do
-		  echo
-		  ${GPG}  --list-keys --with-colons ${a}
-		done < master-keyids
 	else
 		${GPG} --armor --no-emit-version --export ${keyid} >> packager/${username}.asc
 	fi
 done < packager-keyids
 
-# uncomment when we have keys to revoke
+touch archlinux32-revoked
 
-#while read -ra data; do
-#	keyid="${data[0]}"
-#	username="${data[1]}"
-#	${GPG} --recv-keys ${keyid} &>/dev/null
-#	printf 'clean\nquit\ny\n' | \
-#		${GPG} --command-fd 0 --edit-key ${keyid}
-#	if ! ${GPG} --list-keys --with-colons ${keyid} 2>/dev/null | grep -q '^pub:f:'; then
-#		${GPG} --armor --no-emit-version --export ${keyid} >> packager-revoked/${username}.asc
-#		echo "${keyid}" >> archlinux32-revoked
-#	else
-#		echo "key is still fully trusted: ${keyid} ${username}"
-#	fi
-#done < packager-revoked-keyids
+while read -ra data; do
+	keyid="${data[0]}"
+	username="${data[1]}"
+	${GPG} --recv-keys ${keyid} &>/dev/null
+	printf 'clean\nquit\ny\n' | \
+		${GPG} --command-fd 0 --edit-key ${keyid}
+	if ! ${GPG} --list-keys --with-colons ${keyid} 2>/dev/null | grep -q '^pub:f:'; then
+		${GPG} --armor --no-emit-version --export ${keyid} >> packager-revoked/${username}.asc
+		echo "${keyid}" >> archlinux32-revoked
+	else
+		echo "key is still fully trusted: ${keyid} ${username}"
+	fi
+done < packager-revoked-keyids
 
-#cat master/*.asc packager/*.asc packager-revoked/*.asc > archlinux32.gpg
+# cat master/*.asc packager/*.asc packager-revoked/*.asc > archlinux32.gpg
 
 cat master/*.asc packager/*.asc > archlinux32.gpg
 
