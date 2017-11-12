@@ -18,6 +18,8 @@ Key-Usage: sign
 Name-Real: Arch Linux 32 Keyring Keychain Master Key
 Name-Email: archlinux32-keyring@localhost
 Expire-Date: 0
+%no-protection
+%no-ask-passphrase
 %commit
 %echo Done
 EOF
