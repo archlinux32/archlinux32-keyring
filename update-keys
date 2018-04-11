@@ -59,7 +59,7 @@ touch archlinux32-revoked
 
 while read -ra data; do
 	keyid="${data[0]}"
-	username="${data[1]}"
+	username="${data[2]}"
 	${GPG} --recv-keys ${keyid} &>/dev/null
 	printf 'clean\nquit\ny\n' | \
 		${GPG} --command-fd 0 --edit-key ${keyid}
@@ -71,8 +71,6 @@ while read -ra data; do
 	fi
 done < packager-revoked-keyids
 
-# cat master/*.asc packager/*.asc packager-revoked/*.asc > archlinux32.gpg
-
-cat master/*.asc packager/*.asc > archlinux32.gpg
+cat master/*.asc packager/*.asc packager-revoked/*.asc > archlinux32.gpg
 
 popd >/dev/null
